@@ -39,11 +39,14 @@ local function Copy(plr)
     end)
 
     if success and desc then
+        LocalPlayer:LoadCharacter()
+
+        task.wait(1)
+
         local char = LocalPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
 
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-
+        if hum then
             hum:ApplyDescriptionReset(desc)
         end
     end
