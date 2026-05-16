@@ -1,89 +1,102 @@
---// Violence District - Parry Practice GUI
---// Training Helper Only
+--// PARTRY TIMING GUI - FIXED VERSION
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
 local LocalPlayer = Players.LocalPlayer
 
 pcall(function()
-    game.CoreGui.ParryPracticeGUI:Destroy()
+    game.CoreGui:FindFirstChild("ParryTimingGUI"):Destroy()
 end)
 
 -- GUI
-local gui = Instance.new("ScreenGui")
-gui.Name = "ParryPracticeGUI"
-gui.Parent = game.CoreGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ParryTimingGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
-local frame = Instance.new("Frame")
-frame.Parent = gui
-frame.Size = UDim2.new(0,220,0,120)
-frame.Position = UDim2.new(0.5,-110,0.1,0)
-frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-frame.Active = true
-frame.Draggable = true
+local Main = Instance.new("Frame")
+Main.Parent = ScreenGui
+Main.Size = UDim2.new(0,230,0,120)
+Main.Position = UDim2.new(0.5,-115,0.1,0)
+Main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
 
-local title = Instance.new("TextLabel")
-title.Parent = frame
-title.Size = UDim2.new(1,0,0,30)
-title.BackgroundTransparency = 1
-title.Text = "PARRY PRACTICE"
-title.TextScaled = true
-title.TextColor3 = Color3.new(1,1,1)
-title.Font = Enum.Font.GothamBold
+local Corner = Instance.new("UICorner")
+Corner.Parent = Main
 
-local status = Instance.new("TextLabel")
-status.Parent = frame
-status.Position = UDim2.new(0,0,0,35)
-status.Size = UDim2.new(1,0,0,35)
-status.BackgroundTransparency = 1
-status.Text = "SAFE"
-status.TextScaled = true
-status.TextColor3 = Color3.fromRGB(0,255,0)
-status.Font = Enum.Font.GothamBold
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+Title.Size = UDim2.new(1,0,0,30)
+Title.BackgroundTransparency = 1
+Title.Text = "PARRY TIMING"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
 
-local distanceText = Instance.new("TextLabel")
-distanceText.Parent = frame
-distanceText.Position = UDim2.new(0,0,0,70)
-distanceText.Size = UDim2.new(1,0,0,30)
-distanceText.BackgroundTransparency = 1
-distanceText.Text = "DISTANCE : 0"
-distanceText.TextScaled = true
-distanceText.TextColor3 = Color3.new(1,1,1)
-distanceText.Font = Enum.Font.Gotham
+local Status = Instance.new("TextLabel")
+Status.Parent = Main
+Status.Position = UDim2.new(0,0,0,35)
+Status.Size = UDim2.new(1,0,0,35)
+Status.BackgroundTransparency = 1
+Status.Text = "SAFE"
+Status.TextColor3 = Color3.fromRGB(0,255,0)
+Status.TextScaled = true
+Status.Font = Enum.Font.GothamBold
 
--- CHECK MUSUH TERDEKAT
+local Distance = Instance.new("TextLabel")
+Distance.Parent = Main
+Distance.Position = UDim2.new(0,0,0,75)
+Distance.Size = UDim2.new(1,0,0,25)
+Distance.BackgroundTransparency = 1
+Distance.Text = "DISTANCE : 0"
+Distance.TextColor3 = Color3.new(1,1,1)
+Distance.TextScaled = true
+Distance.Font = Enum.Font.Gotham
+
+-- MAIN LOOP
 RunService.RenderStepped:Connect(function()
 
-    local nearest = math.huge
+    local Character = LocalPlayer.Character
+    if not Character then return end
 
-    for _,plr in pairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+    local Root = Character:FindFirstChild("HumanoidRootPart")
+    if not Root then return end
 
-            local myChar = LocalPlayer.Character
-            if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+    local Closest = math.huge
 
-                local dist = (myChar.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+    for _,Player in ipairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character then
 
-                if dist < nearest then
-                    nearest = dist
+            local EnemyRoot = Player.Character:FindFirstChild("HumanoidRootPart")
+
+            if EnemyRoot then
+                local Dist = (Root.Position - EnemyRoot.Position).Magnitude
+
+                if Dist < Closest then
+                    Closest = Dist
                 end
             end
         end
     end
 
-    distanceText.Text = "DISTANCE : "..math.floor(nearest)
+    if Closest == math.huge then
+        Closest = 0
+    end
 
-    if nearest <= 8 then
-        status.Text = "PARRY NOW!"
-        status.TextColor3 = Color3.fromRGB(255,0,0)
+    Distance.Text = "DISTANCE : "..math.floor(Closest)
 
-    elseif nearest <= 15 then
-        status.Text = "GET READY"
-        status.TextColor3 = Color3.fromRGB(255,255,0)
+    if Closest <= 8 then
+        Status.Text = "PARRY NOW!"
+        Status.TextColor3 = Color3.fromRGB(255,0,0)
+
+    elseif Closest <= 15 then
+        Status.Text = "GET READY"
+        Status.TextColor3 = Color3.fromRGB(255,255,0)
 
     else
-        status.Text = "SAFE"
-        status.TextColor3 = Color3.fromRGB(0,255,0)
+        Status.Text = "SAFE"
+        Status.TextColor3 = Color3.fromRGB(0,255,0)
     end
 end)
