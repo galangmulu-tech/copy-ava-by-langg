@@ -34,10 +34,18 @@ local layout = Instance.new("UIListLayout", scrolling)
 layout.Padding = UDim.new(0,5)
 
 local function Copy(plr)
-    local desc = Players:GetHumanoidDescriptionFromUserId(plr.UserId)
+    local success, desc = pcall(function()
+        return Players:GetHumanoidDescriptionFromUserId(plr.UserId)
+    end)
 
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid:ApplyDescription(desc)
+    if success and desc then
+        local char = LocalPlayer.Character
+
+        if char and char:FindFirstChildOfClass("Humanoid") then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+
+            hum:ApplyDescriptionReset(desc)
+        end
     end
 end
 
