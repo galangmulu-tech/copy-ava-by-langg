@@ -1,0 +1,89 @@
+--// Violence District - Parry Practice GUI
+--// Training Helper Only
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+pcall(function()
+    game.CoreGui.ParryPracticeGUI:Destroy()
+end)
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ParryPracticeGUI"
+gui.Parent = game.CoreGui
+
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0,220,0,120)
+frame.Position = UDim2.new(0.5,-110,0.1,0)
+frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+frame.Active = true
+frame.Draggable = true
+
+local title = Instance.new("TextLabel")
+title.Parent = frame
+title.Size = UDim2.new(1,0,0,30)
+title.BackgroundTransparency = 1
+title.Text = "PARRY PRACTICE"
+title.TextScaled = true
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+
+local status = Instance.new("TextLabel")
+status.Parent = frame
+status.Position = UDim2.new(0,0,0,35)
+status.Size = UDim2.new(1,0,0,35)
+status.BackgroundTransparency = 1
+status.Text = "SAFE"
+status.TextScaled = true
+status.TextColor3 = Color3.fromRGB(0,255,0)
+status.Font = Enum.Font.GothamBold
+
+local distanceText = Instance.new("TextLabel")
+distanceText.Parent = frame
+distanceText.Position = UDim2.new(0,0,0,70)
+distanceText.Size = UDim2.new(1,0,0,30)
+distanceText.BackgroundTransparency = 1
+distanceText.Text = "DISTANCE : 0"
+distanceText.TextScaled = true
+distanceText.TextColor3 = Color3.new(1,1,1)
+distanceText.Font = Enum.Font.Gotham
+
+-- CHECK MUSUH TERDEKAT
+RunService.RenderStepped:Connect(function()
+
+    local nearest = math.huge
+
+    for _,plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+
+            local myChar = LocalPlayer.Character
+            if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+
+                local dist = (myChar.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+
+                if dist < nearest then
+                    nearest = dist
+                end
+            end
+        end
+    end
+
+    distanceText.Text = "DISTANCE : "..math.floor(nearest)
+
+    if nearest <= 8 then
+        status.Text = "PARRY NOW!"
+        status.TextColor3 = Color3.fromRGB(255,0,0)
+
+    elseif nearest <= 15 then
+        status.Text = "GET READY"
+        status.TextColor3 = Color3.fromRGB(255,255,0)
+
+    else
+        status.Text = "SAFE"
+        status.TextColor3 = Color3.fromRGB(0,255,0)
+    end
+end)
